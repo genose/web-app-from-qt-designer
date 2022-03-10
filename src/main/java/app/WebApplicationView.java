@@ -63,7 +63,7 @@ public class WebApplicationView {
 				if(selectedFile != null){
 					LOGGER.info("File " + selectedFile.getName() + " is chosen");
 					QtUiFileParser uiParser = new QtUiFileParser();
-					uiParser.parse(selectedFile);
+					uiParser.parse(selectedFile,true);
 				}
 				else{
 					LOGGER.info("File is not chosen");
