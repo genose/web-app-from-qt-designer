@@ -1,14 +1,17 @@
 package model;
 
+import java.util.logging.Logger;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import app.WebApplicationView;
 import util.Utils;
 
 public class PositionTypeConverter {
-	
+	private static Logger LOGGER = Logger.getLogger(WebApplicationView.class.getName());
 public static void createElement(Document htmlDoc, Element div, Element eElement){
 		
 		String qClassName = eElement.getAttribute("class");
@@ -37,6 +40,9 @@ public static void createElement(Document htmlDoc, Element div, Element eElement
 		else if(qClassName.equals("QPlainTextEdit")){
 			convertQPlainTextEditToHtmlElement(htmlDoc, div, eElement);
 		}
+		else if(qClassName.equals("QTextEdit")){
+			convertQPlainTextEditToHtmlElement(htmlDoc, div, eElement);
+		}
 		else if(qClassName.equals("QLabel")){
 			convertQLabelToHtmlElement(htmlDoc, div, eElement);
 		}
@@ -54,9 +60,13 @@ public static void createElement(Document htmlDoc, Element div, Element eElement
 		}
 		else if(qClassName.equals("QWidget")){
 			convertQWidgetToDiv(htmlDoc, div, eElement);
+		}else if(qClassName.equals("QDialog")){
+			LOGGER.info("BEGIN - QDialog::'"+qClassName + "' is not found ");
+			convertQWidgetToDiv(htmlDoc, div, eElement);
+			LOGGER.info("END - QDialog::'"+qClassName + "' is not found ");
 		}
 		else{
-			System.out.println(qClassName + " is not found");
+			LOGGER.info("WARNING QCLASS : '"+qClassName + "' is not found for ("+div.getNodeType()+" :: "+div.getNodeName()+" :: "+ eElement.getNodeType()+" :: "+ eElement.getNodeName()+")");
 		}
 	}
 	
@@ -319,7 +329,7 @@ public static void createElement(Document htmlDoc, Element div, Element eElement
 		String id = eElement.getAttribute("name");
 		String style = getStyle(eElement);
 		Element pElement = htmlDoc.createElement("input");
-		//Max ve min deðerleri çekilerek buraya eklenecek
+		//Max ve min deï¿½erleri ï¿½ekilerek buraya eklenecek
 		pElement.setAttribute("id", id);
 		pElement.setAttribute("type", "number");
 		pElement.setAttribute("class", "form-control input-sm");
@@ -350,7 +360,7 @@ public static void createElement(Document htmlDoc, Element div, Element eElement
 		String id = eElement.getAttribute("name");
 		String style = getStyle(eElement);
 		Element div = htmlDoc.createElement("div");
-		//Max ve min deðerleri çekilerek buraya eklenecek
+		//Max ve min deï¿½erleri ï¿½ekilerek buraya eklenecek
 		div.setAttribute("id", id);
 		if(style != null){
 			div.setAttribute("style", style);

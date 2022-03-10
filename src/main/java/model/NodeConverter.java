@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import util.Utils;
 
@@ -11,8 +12,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import app.WebApplicationView;
+
 public class NodeConverter {
-	
+	private static Logger LOGGER = Logger.getLogger(WebApplicationView.class.getName());
 	private Node mainNode;
 	private Document htmlDoc;
 	
@@ -85,6 +88,7 @@ public class NodeConverter {
 			}
 			else{
 				System.out.println("Node name is: " + name);
+				LOGGER.info("Conversion Step : \n"+"Main node is not ui");
 			}
 			next = Utils.getFirstElementTypeSiblingNode(next);
 		}

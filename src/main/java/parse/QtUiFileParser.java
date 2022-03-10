@@ -6,10 +6,14 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.swing.JOptionPane;
 
 import document.MyHTMLDocumentImpl;
 import model.NodeConverter;
@@ -24,13 +28,21 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 
+import app.WebApplicationView;
+
 public class QtUiFileParser {
 
+	private static Logger LOGGER = Logger.getLogger(WebApplicationView.class.getName());
 	public QtUiFileParser(){
 
 	}
 
 	public void parse(File fXmlFile){
+		parse(fXmlFile, false);
+
+	}
+
+	public void parse(File fXmlFile, Boolean interactiveMode){
 		try {
 
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -39,7 +51,7 @@ public class QtUiFileParser {
 			doc.getDocumentElement().normalize();
 
 			System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-
+			LOGGER.info("Root element :" + doc.getDocumentElement().getNodeName());
 			NodeList nList = doc.getElementsByTagName("widget");
 			Node mainNode = doc.getFirstChild();
 			NodeConverter nodeConverter = null;
@@ -47,47 +59,80 @@ public class QtUiFileParser {
 			Document htmlDoc = MyHTMLDocumentImpl.makeBasicHtmlDoc("My Title");
 			
 			if(mainNode.getNodeName().equals("ui")){
+				LOGGER.info("BEGIN - Conversion Step node ui : \n");
 				NodeList uiChildren =  mainNode.getChildNodes();
 				for(int i = 0 ; i < uiChildren.getLength(); i++){
-					Node tempNode = uiChildren.item(i);
-					if(tempNode.getNodeName().equals("widget")){
-						nodeConverter = new NodeConverter(htmlDoc, tempNode);
-						break;
+					try{
+						
+						Node tempNode = uiChildren.item(i);
+						if(tempNode.getNodeName().equals("widget")){
+							LOGGER.info("BEGIN - Conversion Step node ui widget : \n");
+							nodeConverter = new NodeConverter(htmlDoc, tempNode);
+							LOGGER.info("END - Conversion Step node ui widget : \n");
+							break;
+						}
+						else{
+							System.out.println("Node name is: " + tempNode.getNodeName());
+							LOGGER.info("WARNING Conversion Step ui node: \n"+ tempNode.getNodeName());
+						}
+						
+					} catch (Exception e){
+						LOGGER.info("Conversion ERROR widget : \n"+ e.getMessage()+" \n\n -------- \n\n ");
 					}
-					else{
-						System.out.println("Node name is: " + tempNode.getNodeName());
-					}					
+										
 				}
+
+				LOGGER.info("END - Conversion Step node ui : \n");
 			}
 			else{
 				System.out.println("Main node is not ui");
+				LOGGER.info("Conversion Step : \n"+"Main node is not ui");
 			}
 			
 			if(nodeConverter != null){
+				LOGGER.info("BEGIN - Conversion Step visit nodes: \n");
 				nodeConverter.visitNodes();
+				LOGGER.info("END - Conversion Step visit nodes: \n");
 			}
 			
-//			System.out.println("----------------------------");
-//			for (int temp = 0; temp < nList.getLength(); temp++) {
-//
-//				Node nNode = nList.item(temp);
-//
-//				System.out.println("\nCurrent Element :" + nNode.getNodeName());
-//
-//				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-//
-//					Element eElement = (Element) nNode;
-//
-//					System.out.print("Widget Class : " + eElement.getAttribute("class"));
-//					addQObject(htmlDoc, eElement);
-//
-//					//					System.out.println("First Name : " + eElement.getElementsByTagName("firstname").item(0).getTextContent());
-//					//					System.out.println("Last Name : " + eElement.getElementsByTagName("lastname").item(0).getTextContent());
-//					//					System.out.println("Nick Name : " + eElement.getElementsByTagName("nickname").item(0).getTextContent());
-//					//					System.out.println("Salary : " + eElement.getElementsByTagName("salary").item(0).getTextContent());
-//
-//				}
-//			}
+			LOGGER.info("BEGIN ----------------------------");
+			try{
+
+			
+				for (int temp = 0; temp < nList.getLength(); temp++) {
+
+					Node nNode = nList.item(temp);
+
+					LOGGER.info("\n- Current Element :" + nNode.getNodeName());
+
+					if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+
+						Element eElement = (Element) nNode;
+
+
+						if(eElement.getAttribute("class").length() >0){
+							LOGGER.info("Widget Class : " + eElement.getAttribute("class"));
+							addQObject(htmlDoc, eElement);
+
+						}else{
+							LOGGER.info("WARNING : EMPTY Widget Class : " +"'"+ eElement.getAttribute("class")+"'"+" element : "+eElement);
+						}
+						
+						//					System.out.println("First Name : " + eElement.getElementsByTagName("firstname").item(0).getTextContent());
+						//					System.out.println("Last Name : " + eElement.getElementsByTagName("lastname").item(0).getTextContent());
+						//					System.out.println("Nick Name : " + eElement.getElementsByTagName("nickname").item(0).getTextContent());
+						//					System.out.println("Salary : " + eElement.getElementsByTagName("salary").item(0).getTextContent());
+
+					}
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+				LOGGER.info("Conversion NODE ERROR : \n"+ e.getMessage()+" \n\n -------- \n\n "+e.getStackTrace());
+				JOptionPane.showMessageDialog( null, new JLabel("Conversion ERROR : \n"+ e.getMessage()+" \n\n -------- \n\n "+e.getStackTrace()));
+			
+			}
+			LOGGER.info("END ----------------------------");
+			LOGGER.info("Conversion prepare to write file \n");
 			//to serialize
 	        DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
 	        DOMImplementationLS domImplLS = (DOMImplementationLS) registry.getDOMImplementation("LS");
@@ -98,21 +143,60 @@ public class QtUiFileParser {
 
 	        LSOutput lsOutput = domImplLS.createLSOutput();
 	        lsOutput.setEncoding("UTF-8");
-
+			LOGGER.info("Conversion prepare to write file \n");
 	        //to write to file
 	        JFileChooser chooser = new JFileChooser();
 	        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);  
 	        int result = chooser.showSaveDialog(null);
 	        String selectedFileName = fXmlFile.getName().replaceAll("\\.ui", ".html");
-	        File outFile = new File(chooser.getSelectedFile(), selectedFileName);
-	        try (OutputStream os = new FileOutputStream(outFile)) {
-	            lsOutput.setByteStream(os);
-	            lsSerializer.write(htmlDoc, lsOutput);
-	        }
-	        changeBreakLines(outFile);
+			LOGGER.info("Conversion write file -- 1 : \n");
+			File directoryName = chooser.getSelectedFile().getAbsoluteFile();
+			LOGGER.info("Conversion write file -- 2 : \n"+ directoryName.getCanonicalPath());
+	        
+			if(!chooser.getSelectedFile().exists() && !chooser.getSelectedFile().isDirectory()){
+				// JOptionPane.showMessageDialog( null, new JLabel("ERROR filename : "+directoryName+"/" +selectedFileName));
+				String directoryNameStr =  directoryName.getCanonicalPath();
+				directoryNameStr = directoryNameStr.substring(0, directoryNameStr.lastIndexOf("/"));
+				if(interactiveMode)
+					JOptionPane.showMessageDialog( null, new JLabel("Warning new filename : "+directoryNameStr+"/" +selectedFileName ));
+				else 
+					LOGGER.info("Warning new filename : "+directoryNameStr+"/" +selectedFileName );
+
+				directoryName = new File(directoryNameStr);
+
+			}
+
+			if(directoryName.exists() && directoryName.isDirectory()){
+			
+				File outFile = new File(directoryName, selectedFileName);
+				LOGGER.info("BEGIN - Conversion write file name: \n"+ selectedFileName+"\n "+directoryName);
+				 try (OutputStream os = new FileOutputStream(outFile)) {
+					lsOutput.setByteStream(os);
+					lsSerializer.write(htmlDoc, lsOutput);
+				}catch (Exception e) {
+					LOGGER.info("Conversion ERROR write file : \n"+ e.getMessage()+" \n\n -------- \n\n "+e.getStackTrace());
+				}
+				changeBreakLines(outFile);
+				LOGGER.info("END - Conversion write file name: \n"+ selectedFileName+"\n "+directoryName);
+				
+				if(interactiveMode)
+					JOptionPane.showMessageDialog( null, new JLabel("Success Conversion stred at : \n"+directoryName+"/"+selectedFileName));
+				else
+					LOGGER.info("Success Conversion stred at : \n"+directoryName+"/"+selectedFileName);
+				
+			}else{
+				
+			}
+	      
 		}
 		catch(Exception e){
 			e.printStackTrace();
+			LOGGER.info("Conversion ERROR : \n"+ e.getMessage()+" \n\n -------- \n\n "+e.getStackTrace());
+			if(interactiveMode)
+				JOptionPane.showMessageDialog( null, new JLabel("Conversion ERROR : \n"+ e.getMessage()+" \n\n -------- \n\n "+e.getStackTrace()));
+			
+				
+			
 		}
 	}
 	
@@ -130,6 +214,7 @@ public class QtUiFileParser {
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+			LOGGER.info("ERROR : \n"+ e.getStackTrace());
 		}
 	}
 	
@@ -157,6 +242,11 @@ public class QtUiFileParser {
 			convertQLineEditToHtmlElement(htmlDoc, eElement);
 		}
 		else if(qClassName.equals("QPlainTextEdit")){
+			LOGGER.info(" >>> Create "+qClassName);
+			convertQPlainTextEditToHtmlElement(htmlDoc, eElement);
+		}
+		else if(qClassName.equals("QTextEdit")){
+			LOGGER.info(" >>> Create "+qClassName);
 			convertQPlainTextEditToHtmlElement(htmlDoc, eElement);
 		}
 		else if(qClassName.equals("QLabel")){
@@ -169,7 +259,7 @@ public class QtUiFileParser {
 			convertQSpinBoxToHtmlElement(htmlDoc, eElement);
 		}
 		else{
-
+			LOGGER.info("Conversion Warning : \n unknow '"+qClassName+"'");
 		}
 
 	}

@@ -2,13 +2,18 @@ package model;
 
 import util.Utils;
 
+import java.util.logging.Logger;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import app.WebApplicationView;
+
 public class GridTypeConverter {
-	
+	private static Logger LOGGER = Logger.getLogger(WebApplicationView.class.getName());
+
 	public static Element createElement(Document htmlDoc, Element bodyElement, Element eElement,int column, int colSpan, int max){
 		
 		String qClassName = eElement.getAttribute("class");
@@ -51,7 +56,8 @@ public class GridTypeConverter {
 			convertQDialogButtonBoxToHtmlElement(htmlDoc, div, eElement);
 		}
 		else{
-			System.out.println(qClassName);
+			System.out.println("WARNING Element class ERROR : " +qClassName);
+			LOGGER.info("Warning Element Class ERROR : \n"+qClassName);
 		}
 
 		return div;
@@ -75,6 +81,7 @@ public class GridTypeConverter {
 			}
 			else{
 				System.out.println("Dialog button box has: " + el.getAttribute("name"));
+				LOGGER.info("Dialog button box has : \n"+el.getAttribute("name"));
 			}
 		}
 		for(String buttonName : buttonNames){
