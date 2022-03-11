@@ -56,7 +56,7 @@ public class QtUiFileParser {
 			Node mainNode = doc.getFirstChild();
 			NodeConverter nodeConverter = null;
 			
-			Document htmlDoc = MyHTMLDocumentImpl.makeBasicHtmlDoc("My Title");
+			Document htmlDoc = MyHTMLDocumentImpl.makeBasicHtmlDoc(fXmlFile.getName().replaceAll("\\.ui", ".html"));
 			
 			if(mainNode.getNodeName().equals("ui")){
 				LOGGER.info("BEGIN - Conversion Step node ui : \n");
@@ -73,7 +73,7 @@ public class QtUiFileParser {
 						}
 						else{
 							System.out.println("Node name is: " + tempNode.getNodeName());
-							LOGGER.info("WARNING Conversion Step ui node: \n"+ tempNode.getNodeName());
+							LOGGER.info("WARNING Conversion Step ui node: '"+ tempNode.getNodeName()+"' :: '"+tempNode.getNodeValue()+"' :: '"+tempNode.getNodeType()+"' :: '"+tempNode.getTextContent()+"' :: '"+tempNode.getAttributes()+"' ");
 						}
 						
 					} catch (Exception e){
@@ -132,7 +132,7 @@ public class QtUiFileParser {
 			
 			}
 			LOGGER.info("END ----------------------------");
-			LOGGER.info("Conversion prepare to write file \n");
+			LOGGER.info("BEGIN - Conversion prepare to write file \n");
 			//to serialize
 	        DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
 	        DOMImplementationLS domImplLS = (DOMImplementationLS) registry.getDOMImplementation("LS");
@@ -143,17 +143,32 @@ public class QtUiFileParser {
 
 	        LSOutput lsOutput = domImplLS.createLSOutput();
 	        lsOutput.setEncoding("UTF-8");
-			LOGGER.info("Conversion prepare to write file \n");
+			LOGGER.info("Conversion prepare to write file - 0 \n");
 	        //to write to file
-	        JFileChooser chooser = new JFileChooser();
-	        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);  
-	        int result = chooser.showSaveDialog(null);
-	        String selectedFileName = fXmlFile.getName().replaceAll("\\.ui", ".html");
+			int result = -1;
+			String selectedFileName = fXmlFile.getName().replaceAll("\\.ui", ".html");
+			File directoryName = null;
+			File selectedSavePath = null;
 			LOGGER.info("Conversion write file -- 1 : \n");
-			File directoryName = chooser.getSelectedFile().getAbsoluteFile();
+			if(interactiveMode){
+	        	JFileChooser chooser = new JFileChooser();
+	        	chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);  
+	        	result = chooser.showSaveDialog(null);
+				directoryName = chooser.getSelectedFile().getAbsoluteFile();
+				selectedSavePath = new File(directoryName.getAbsolutePath());
+			} else {
+				directoryName = new File(".");
+				
+				selectedSavePath = new File(directoryName.getAbsolutePath());
+				
+			}
+
+	        
+			
+			
 			LOGGER.info("Conversion write file -- 2 : \n"+ directoryName.getCanonicalPath());
 	        
-			if(!chooser.getSelectedFile().exists() && !chooser.getSelectedFile().isDirectory()){
+			if(!selectedSavePath.exists() && !selectedSavePath.isDirectory()){
 				// JOptionPane.showMessageDialog( null, new JLabel("ERROR filename : "+directoryName+"/" +selectedFileName));
 				String directoryNameStr =  directoryName.getCanonicalPath();
 				directoryNameStr = directoryNameStr.substring(0, directoryNameStr.lastIndexOf("/"));
@@ -185,7 +200,7 @@ public class QtUiFileParser {
 					LOGGER.info("Success Conversion stred at : \n"+directoryName+"/"+selectedFileName);
 				
 			}else{
-				
+				LOGGER.info(" WARNING :: Write File error for : \n"+directoryName+"/"+selectedFileName);
 			}
 	      
 		}
