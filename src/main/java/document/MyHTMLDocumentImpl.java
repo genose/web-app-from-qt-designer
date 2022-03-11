@@ -9,14 +9,16 @@ public class MyHTMLDocumentImpl extends DocumentImpl {
 
   private static final long serialVersionUID = 1658286253541962623L;
 
-
+  public static Document makeBasicHtmlDoc(String title) {
+    return makeBasicHtmlDoc(title, true);
+  }
   /**
    * Creates an Document with basic elements
    * 
    * @param title desired text content for title tag. If null, no text will be added.
    * @return basic HTML Document. 
    */
-  public static Document makeBasicHtmlDoc(String title) {
+  public static Document makeBasicHtmlDoc(String title, Boolean useBootstrapCSS) {
       Document htmlDoc = new MyHTMLDocumentImpl();
       DocumentType docType = new DocumentTypeImpl(null, "html",
               "-//W3C//DTD XHTML 1.0 Strict//EN",
@@ -32,28 +34,30 @@ public class MyHTMLDocumentImpl extends DocumentImpl {
       headElement.appendChild(titleElement);
       Element bodyElement = htmlDoc.createElement("body");
       htmlElement.appendChild(bodyElement);
-      
-      Element linkElement = htmlDoc.createElement("link");
-      linkElement.setAttribute("crossorigin", "anonymous");
-      linkElement.setAttribute("integrity", "sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7");
-      linkElement.setAttribute("href", "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css");
-      linkElement.setAttribute("rel", "stylesheet");
-      headElement.appendChild(linkElement);
-      
-      Element linkElement2 = htmlDoc.createElement("link");
-      linkElement2.setAttribute("crossorigin", "anonymous");
-      linkElement2.setAttribute("integrity", "sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r");
-      linkElement2.setAttribute("href", "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css");
-      linkElement2.setAttribute("rel", "stylesheet");
-      headElement.appendChild(linkElement2);
-      
-      Element scriptElement = htmlDoc.createElement("script");
-      scriptElement.setAttribute("crossorigin", "anonymous");
-      scriptElement.setAttribute("integrity", "sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS");
-      scriptElement.setAttribute("src", "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js");
-      scriptElement.setTextContent("script");
-      headElement.appendChild(scriptElement);
-      
+      if(useBootstrapCSS)
+      {
+
+        Element linkElement = htmlDoc.createElement("link");
+        linkElement.setAttribute("crossorigin", "anonymous");
+        linkElement.setAttribute("integrity", "sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7");
+        linkElement.setAttribute("href", "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css");
+        linkElement.setAttribute("rel", "stylesheet");
+        headElement.appendChild(linkElement);
+        
+        Element linkElement2 = htmlDoc.createElement("link");
+        linkElement2.setAttribute("crossorigin", "anonymous");
+        linkElement2.setAttribute("integrity", "sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r");
+        linkElement2.setAttribute("href", "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css");
+        linkElement2.setAttribute("rel", "stylesheet");
+        headElement.appendChild(linkElement2);
+        
+        Element scriptElement = htmlDoc.createElement("script");
+        scriptElement.setAttribute("crossorigin", "anonymous");
+        scriptElement.setAttribute("integrity", "sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS");
+        scriptElement.setAttribute("src", "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js");
+        scriptElement.setTextContent("script");
+        headElement.appendChild(scriptElement);
+      }
       return htmlDoc;
   }
 

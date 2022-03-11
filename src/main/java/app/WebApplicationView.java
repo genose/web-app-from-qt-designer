@@ -3,6 +3,7 @@ package app;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -48,20 +49,23 @@ public class WebApplicationView {
 		}
 
 		try {
-			LOGGER.info(" Arguments list : "+ args);
+			LOGGER.info(" Arguments list : "+ Arrays.asList(args));
 			boolean haveArgFile = false;
+			boolean useBootstrapCSS = true;
 			 
 			List<String> dirFile = new ArrayList<String>();
 			File curPwdExecDir = new File(".");
 			String curPwdDir = curPwdExecDir.getAbsolutePath();
-			LOGGER.info(" Arguments in : "+ args);
+			
 			
 			for (String argString : args) {
 				
 				String[] arguments = argString.split("=");
 				LOGGER.info(" Arguments split : "+ arguments.length);
 				if( arguments!=null &&  arguments.length>1){
-					if(arguments[0].toString() == "-file"){
+					LOGGER.info(" Arguments split : "+arguments[0].toString()+" ::  "+arguments[1].toString());
+
+					if(arguments[0].toString().equalsIgnoreCase("-file")){
 						LOGGER.info(" Arguments split set flag(haveArgFile) for non interactive mode ");
 						haveArgFile = true;
 						String tmpFilepath = curPwdDir+"/"+arguments[1];
@@ -73,7 +77,10 @@ public class WebApplicationView {
 						}else{
 							LOGGER.info("ERROR :: Arguments split filename not found : "+ tmpFilepath);
 						}
-					}
+					}else if(arguments[0].toString().equalsIgnoreCase( "-bootstrapcss")){
+						LOGGER.info(" >>>> "+arguments[0].toString()+" :: "+arguments[1].toString());
+						useBootstrapCSS = ( arguments[1].toString().equalsIgnoreCase( "true")? true:false );
+					} 
 				} else {
 					LOGGER.info(" Arguments NONE : "+ argString);
 				}
@@ -91,13 +98,14 @@ public class WebApplicationView {
 
 					}
 				}
+				
 			}
 			for (String curFile : dirFile) {
 				LOGGER.info(" -------------------  -------------------  ------------------- ");
 				File selectedFile = new File(curFile);
 				LOGGER.info(" >>>>> BEGIN - Arg File " + selectedFile.getName() + " is in progress");
 				QtUiFileParser uiParser = new QtUiFileParser();
-				uiParser.parse(selectedFile);
+				uiParser.parse(selectedFile, false, useBootstrapCSS);
 				LOGGER.info(" >>>>> END - Arg File " + selectedFile.getName() + " is in progress");
 			}
 
@@ -115,7 +123,7 @@ public class WebApplicationView {
 				if(selectedFile != null){
 					LOGGER.info("File " + selectedFile.getName() + " is chosen");
 					QtUiFileParser uiParser = new QtUiFileParser();
-					uiParser.parse(selectedFile,true);
+					uiParser.parse(selectedFile, true, useBootstrapCSS);
 				}
 				else{
 					LOGGER.info("File is not chosen");

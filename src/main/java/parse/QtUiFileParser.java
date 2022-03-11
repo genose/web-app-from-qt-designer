@@ -38,11 +38,11 @@ public class QtUiFileParser {
 	}
 
 	public void parse(File fXmlFile){
-		parse(fXmlFile, false);
+		parse(fXmlFile, false, true);
 
 	}
 
-	public void parse(File fXmlFile, Boolean interactiveMode){
+	public void parse(File fXmlFile, Boolean interactiveMode, Boolean useBootstrapCSS){
 		try {
 
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -56,7 +56,7 @@ public class QtUiFileParser {
 			Node mainNode = doc.getFirstChild();
 			NodeConverter nodeConverter = null;
 			
-			Document htmlDoc = MyHTMLDocumentImpl.makeBasicHtmlDoc(fXmlFile.getName().replaceAll("\\.ui", ".html"));
+			Document htmlDoc = MyHTMLDocumentImpl.makeBasicHtmlDoc(fXmlFile.getName().replaceAll("\\.ui", ".html"), useBootstrapCSS);
 			
 			if(mainNode.getNodeName().equals("ui")){
 				LOGGER.info("BEGIN - Conversion Step node ui : \n");
